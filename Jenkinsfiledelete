@@ -1,0 +1,87 @@
+#!/usr/bin/env groovy
+@Library(['piper-lib', 'piper-lib-os']) _
+
+def checkacc() {
+	
+	withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.JenkinCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){	  
+				  sh '''
+				  echo "************ Check if Subaccount exists *********************************"
+				  echo "************************************************************************** " 
+					   pip3 install -r requirements.txt
+					   cd scripts
+					   python3 installations.py
+					   python3 subaccount_exists.py  
+				 '''
+				is_account_exists = readFile(file: 'myfile.txt')
+				print(is_account_exists)	
+				return is_account_exists
+	}
+	
+}
+
+node ('master') {
+	dockerExecuteOnKubernetes(script: this, dockerEnvVars: ['pusername':pusername, 'puserpwd':puserpwd], dockerImage: 'docker.wdf.sap.corp:51010/sfext:v3-py' )
+{
+
+	try {
+		    stage('Git-clone')
+			{
+				cleanWs()
+				checkout scm
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'GithubTools',usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
+
+				sh'''
+				git clone https://$USERNAME:$PASSWORD@github.tools.sap/I349024/ReusableActions.git --branch 'master'
+				mv ./ReusableActions/* ./
+				'''
+				}
+			}
+			stage ('delete_customer_subaccount') 
+			{
+				
+				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.JenkinCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
+           
+				    writeJSON file: 'manifest.json', json: params.ManifestJsonFileContent
+							data1 = readJSON file:'manifest.json'
+							print(data1) 
+				    sh '''
+				    mv manifest.json ./config/
+				    '''
+				    is_account_exists = checkacc()
+				    print(is_account_exists)	
+
+				    if (is_account_exists == 'True') 
+					{
+
+					print("Subaccount already exists.")
+					print("Deleting the subaccount")
+					sh '''
+					cd scripts
+                      python3 delete_subaccount.py
+
+					'''
+					
+				     } 
+            
+				       }
+
+
+				}	  
+			
+		
+		
+		
+		
+		}
+				 
+	catch(e){
+		echo e.toString()
+		echo 'This will run only if failed'
+		currentBuild.result = "FAILURE"
+	}
+	finally {
+		emailext body: '$DEFAULT_CONTENT', subject: '$DEFAULT_SUBJECT', to: 'vanita.dhanagar@sap.com'
+	}
+
+} 
+}
