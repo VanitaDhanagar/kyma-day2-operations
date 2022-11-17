@@ -3,7 +3,7 @@
 
 def checkacc() {
 	
-	withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.JenkinCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){	  
+	withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.BTPCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){	  
 				  sh '''
 				  echo "************ Check if Subaccount exists *********************************"
 				  echo "************************************************************************** " 
@@ -44,7 +44,7 @@ node ('master')
 			
 			stage ('check_Subaccount_exist') 
 			{
-				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.JenkinCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']])
+				withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.BTPCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']])
 {
 				    writeJSON file: 'manifest.json', json: params.ManifestJsonFileContent
 							data1 = readJSON file:'manifest.json'
@@ -70,7 +70,7 @@ node ('master')
 		
 		stage('UI_Test_Execution')
 		{
-			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.JenkinCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){		
+			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.BTPCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){		
 			    data = readJSON file: './config/manifest.json'		  
 				paramSub = "${data.subaccounts[0].display_name}"
 				print paramSub
@@ -80,7 +80,7 @@ node ('master')
 				print username
 				password = env.password
 				print password
-				//build job: 'Kyma_Day2Operations_UI_Factory', parameters: [[$class: 'StringParameterValue', name: 'URL', value: landscapeUrl],[$class: 'StringParameterValue', name: 'Username', value: username],[$class: 'StringParameterValue', name: 'Password', value: password],[$class: 'StringParameterValue', name: 'Subaccount', value: paramSub]]
+				build job: 'Kyma_Day2Operations_UI_Factory', parameters: [[$class: 'StringParameterValue', name: 'URL', value: landscapeUrl],[$class: 'StringParameterValue', name: 'Username', value: username],[$class: 'StringParameterValue', name: 'Password', value: password],[$class: 'StringParameterValue', name: 'Subaccount', value: paramSub]]
                 
 			     
 		}
@@ -92,7 +92,7 @@ node ('master')
 		
 	stage('Delete Kyma-instances and apps')
 	{
-		node ('CAT_10.237.114.208_Subordinate_1') 
+		node ('windowskymanode') 
        {	
 		 deleteDir()
 
@@ -121,7 +121,7 @@ node ('master')
 		 }	
 	stage('cloudFoundryDeleteService')
 	{
-	withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.JenkinCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
+	withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.BTPCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
       data = readJSON file: './config/manifest.json'
 	 paramOrg = "${data.subaccounts[0].org_name}"
 	               print paramOrg
@@ -131,7 +131,7 @@ node ('master')
                              		print region					
 					endpoint = "https://api.cf.${region}.hana.ondemand.com"
 	 
-	cloudFoundryDeleteService(script: this, cfApiEndpoint: endpoint, cfOrg: paramOrg, cfSpace: paramSpace,cfServiceInstance: 'EasyFranchiseHANADB',cfCredentialsId: env.JenkinCredentialID)
+	cloudFoundryDeleteService(script: this, cfApiEndpoint: endpoint, cfOrg: paramOrg, cfSpace: paramSpace,cfServiceInstance: 'EasyFranchiseHANADB',cfCredentialsId: env.BTPCredentialID)
 
 
 	}
@@ -139,7 +139,7 @@ node ('master')
 	}
 	stage('Delete kyma-env')
 	{
-		withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.JenkinCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
+		withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.BTPCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
          data = readJSON file: './config/manifest.json'		  
 		 subdomain = "${data.global_logon.subdomain}"
 		 print subdomain
@@ -152,7 +152,7 @@ node ('master')
 		region = "${data.subaccounts[0].region}"
 						
 				deleteKymaEnvironment(
-							btpCredentialsId: env.JenkinCredentialID,
+							btpCredentialsId: env.BTPCredentialID,
 							btpGlobalAccountId:subdomain,
 							btpSubdomainName: subaccount_subdomain,
 							btpRegion:'us20',
