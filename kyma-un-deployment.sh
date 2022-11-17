@@ -59,6 +59,8 @@
   kubectl -n integration delete serviceinstances xsuaa-service || true
 
   
+
+  
    
   
   echo

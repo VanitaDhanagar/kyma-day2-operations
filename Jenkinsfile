@@ -105,6 +105,8 @@ node ('master')
                         sh '''
 						 git clone https://github.com/VanitaDhanagar/kyma-day2-operations.git --branch 'main'
 				         mv ./kyma-day2-operations/* ./
+						 git clone https://github.com/SAP-samples/btp-kyma-day2-operations.git --branch 'main'
+				         mv ./btp-kyma-day2-operations/* ./
                           kubectl version
 						  
                           kubectl config view
