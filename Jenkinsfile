@@ -159,7 +159,7 @@ node ('master')
 							btpSubdomainName: subaccount_subdomain,
 							btpRegion:'us20',
 							btpLandscape:'factory',
-							kymaDisplayName:'kyma-day2-providerautomation1-93951304-9109-44bc-ac3f-53c3ac_kyma'
+							kymaDisplayName:'kyma-day2-operation-automation-93951304-9109-44bc-ac3f-53c3a_kyma'
 						)
 	
 
