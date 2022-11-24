@@ -31,7 +31,7 @@ node ('master') {
                 withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'GithubTools',usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
 
 				sh'''
-				git clone https://$USERNAME:$PASSWORD@github.tools.sap/I349024/ReusableActions.git --branch 'master'
+				git clone https://$USERNAME:$PASSWORD@github.tools.sap/btp-ppu-test/ReusableActions.git --branch 'master'
 				mv ./ReusableActions/* ./
 				'''
 				}
