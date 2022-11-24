@@ -59,6 +59,20 @@
   kubectl -n integration delete serviceinstances xsuaa-service || true
 
   
+  echo "Step 3.1 delete namespace backend"  
+  kubectl delete namespace backend || true
+
+  echo "Step 3.2 delete namespace day2-operations"  
+  kubectl delete namespace day2-operations || true
+
+  echo "Step 3.3 delete namespace frontend"  
+ kubectl delete namespace frontend || true
+
+  echo "Step 3.4 delete namespace integration"  
+  kubectl delete namespace integration || true
+  
+  echo "Step 3.5 delete namespace  mock"  
+  kubectl delete namespace  mock || true
 
   
    
