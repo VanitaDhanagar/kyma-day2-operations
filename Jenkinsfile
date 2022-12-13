@@ -166,6 +166,18 @@ node ('master')
 	}
 		
 	}
+	stage ('Delete provider subaccount')
+	{
+		withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:env.BTPCredentialID,usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]){
+
+			  sh '''
+					  echo "************ delete provider subaccount ************************************** "
+					  echo "************************************************************************** " 
+						   cd scripts
+						   python3 delete_subaccount.py
+					'''
+	}
+	}
 	
 	
 	}	 
